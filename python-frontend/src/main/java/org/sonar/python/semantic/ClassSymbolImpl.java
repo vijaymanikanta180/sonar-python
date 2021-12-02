@@ -134,6 +134,9 @@ public class ClassSymbolImpl extends SymbolImpl implements ClassSymbol {
       .forEach(proto -> descriptorsByFqn.computeIfAbsent(proto.getFullname(), d -> new HashSet<>()).add(proto));
     for (Map.Entry<String, Set<Object>> entry : descriptorsByFqn.entrySet()) {
       Set<Symbol> symbols = symbolsFromDescriptor(entry.getValue(), true);
+      if (symbols.isEmpty()) {
+        continue;
+      }
       methods.add(symbols.size() > 1 ? AmbiguousSymbolImpl.create(symbols) : symbols.iterator().next());
     }
     addMembers(methods);

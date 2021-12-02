@@ -180,6 +180,14 @@ public class TypeShed {
       return symbolByFqn;
     }
 
+    symbolByFqn = symbols.stream().filter(s -> s.is(Symbol.Kind.AMBIGUOUS) && s.fullyQualifiedName() == null)
+      .flatMap(symbol -> ((AmbiguousSymbol) symbol).alternatives().stream())
+      .filter(s -> fullyQualifiedName.equals(s.fullyQualifiedName())).findFirst().orElse(null);
+
+    if (symbolByFqn != null) {
+      return symbolByFqn;
+    }
+
     // If FQN of the member does not match the pattern of "package_name.file_name.symbol_name"
     // (e.g. it could be declared in package_name.file_name using import) or in case when
     // we have import with an alias (from module import method as alias_method), we retrieve symbol_name out of
@@ -414,7 +422,15 @@ public class TypeShed {
         deserializedSymbols.put(fqn, symbols.size() > 1 ? AmbiguousSymbolImpl.create(symbols) : symbols.iterator().next());
       }
     }
-    return deserializedSymbols;
+    return deserializedSymbols.values().stream().collect(Collectors.toMap(Symbol::name, Function.identity(), TypeShed::disambiguateSymbolsWithSameName));
+  }
+
+  public static Symbol disambiguateSymbolsWithSameName(Symbol s1, Symbol s2) {
+    String fqn = s1.fullyQualifiedName();
+    if (fqn != null && fqn.equals(s2.fullyQualifiedName())) {
+      return AmbiguousSymbolImpl.create(s1, s2);
+    }
+    return disambiguateWithLatestPythonSymbol(new HashSet<>(Arrays.asList(s1, s2)));
   }
 
   public static boolean isValidForProjectPythonVersion(List<String> validForPythonVersions) {
@@ -436,6 +452,10 @@ public class TypeShed {
         symbols.add(new FunctionSymbolImpl(((SymbolsProtos.FunctionSymbol) descriptor), isInsideClass));
       }
       if (descriptor instanceof OverloadedFunctionSymbol) {
+        if (((OverloadedFunctionSymbol) descriptor).getDefinitionsList().size() < 2) {
+          LOG.error("Overloaded function symbols should have at least two definitions");
+          continue;
+        }
         symbols.add(fromOverloadedFunction(((OverloadedFunctionSymbol) descriptor), isInsideClass));
       }
     }

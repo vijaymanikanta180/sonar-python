@@ -305,14 +305,15 @@ class ModuleSymbol:
         self.overloaded_functions = []
         for key in mypy_file.names:
             name = mypy_file.names.get(key)
-            if name.fullname.startswith(mypy_file.fullname):
-                symbol_table_node = name.node
-                if isinstance(symbol_table_node, mpn.FuncDef):
-                    self.functions.append(FunctionSymbol(symbol_table_node))
-                if isinstance(symbol_table_node, mpn.OverloadedFuncDef):
-                    self.overloaded_functions.append(OverloadedFunctionSymbol(symbol_table_node))
-                if isinstance(symbol_table_node, mpn.TypeInfo):
-                    self.classes.append(ClassSymbol(symbol_table_node))
+            symbol_table_node = name.node
+            if isinstance(symbol_table_node, mpn.FuncDef):
+                self.functions.append(FunctionSymbol(symbol_table_node))
+            elif isinstance(symbol_table_node, mpn.OverloadedFuncDef):
+                self.overloaded_functions.append(OverloadedFunctionSymbol(symbol_table_node))
+            elif isinstance(symbol_table_node, mpn.TypeInfo):
+                self.classes.append(ClassSymbol(symbol_table_node))
+            elif isinstance(symbol_table_node, mpn.MypyFile):
+                print(f"symbol ${symbol_table_node.name} has not been added")
 
     def to_proto(self) -> symbols_pb2.ModuleSymbol:
         pb_module = symbols_pb2.ModuleSymbol()
