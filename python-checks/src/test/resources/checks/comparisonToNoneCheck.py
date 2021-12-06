@@ -30,3 +30,10 @@ def equality_check(param):
     d = "abc"
     if b == d: pass
     if b != d: pass
+
+
+def tp():
+    import locale
+    mylocale = locale.getpreferredencoding(False)
+    if mylocale is None:  # we now correctly infer type of mylocale being "str"
+        ...

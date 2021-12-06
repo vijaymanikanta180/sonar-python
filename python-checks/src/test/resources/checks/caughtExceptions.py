@@ -55,3 +55,11 @@ def foo():
     foo = 1/0
   except exceptions:
     foo = 0
+
+
+def fp():
+  import smtplib
+  try:
+    ...
+  except smtplib.SMTPServerDisconnected:
+    ...

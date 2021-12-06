@@ -140,3 +140,8 @@ def call_properties():
     myvar.prop()  # FN
     myvar.custom_prop()  # FN
     myvar.callable_prop(1, 2)  # OK
+
+
+def stdlib(func, foo):
+    from functools import wraps
+    return wraps(func)(foo)

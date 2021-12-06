@@ -156,7 +156,7 @@ public class InferredTypes {
         String typeName = type.getFullyQualifiedName();
         return typeName.isEmpty() ? anyType() : runtimeType(TypeShed.symbolWithFQN(typeName));
       case TYPE_ALIAS:
-      case CALLABLE:
+      // case CALLABLE: TODO: handle properly CALLABLE types
         return fromTypeshedProtobuf(type.getArgs(0));
       case UNION:
         return union(type.getArgsList().stream().map(InferredTypes::fromTypeshedProtobuf));
