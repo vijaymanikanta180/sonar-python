@@ -92,3 +92,12 @@ else:
     @overload
     def overloaded_function_multiple_defs(param: str):
         ...
+
+if sys.version_info >= (3, 8):
+    unique_var_38: int
+    var_multiple_defs: str
+else:
+    unique_var_36: int
+    var_multiple_defs: int
+
+common_var: bool
