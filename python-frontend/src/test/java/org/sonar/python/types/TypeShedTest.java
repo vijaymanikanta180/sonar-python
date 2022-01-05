@@ -23,6 +23,8 @@ import com.google.protobuf.TextFormat;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -471,7 +473,7 @@ public class TypeShedTest {
   @Test
   public void variables_from_protobuf() throws TextFormat.ParseException {
     SymbolsProtos.ModuleSymbol moduleSymbol = moduleSymbol(
-        "fully_qualified_name: \"mod\"\n" +
+      "fully_qualified_name: \"mod\"\n" +
         "vars {\n" +
         "  name: \"foo\"\n" +
         "  fully_qualified_name: \"mod.foo\"\n" +
@@ -487,5 +489,11 @@ public class TypeShedTest {
     Map<String, Symbol> symbols = TypeShed.getSymbolsFromProtobufModule(moduleSymbol);
     assertThat(symbols.values()).extracting(Symbol::kind, Symbol::fullyQualifiedName, Symbol::annotatedTypeName)
       .containsExactlyInAnyOrder(tuple(Kind.OTHER, "mod.foo", "str"), tuple(Kind.OTHER, "mod.bar", null));
+  }
+
+  @Test
+  public void name() {
+    List<Symbol> symbols = TypeShed.stubFilesSymbols().stream().filter(s -> "socket.socket".equals(s.fullyQualifiedName())).collect(Collectors.toList());
+
   }
 }

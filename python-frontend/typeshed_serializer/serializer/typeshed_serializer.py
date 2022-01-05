@@ -70,8 +70,8 @@ def walk_typeshed_stdlib(opt: options.Options = get_options()):
             # Avoid python2 stubs
             continue
         for file in files:
-            if not file.endswith(".pyi"):
-                # Only consider actual stubs
+            if not file.endswith(".pyi") or is_internal_typeshed_module(file):
+                # Only consider actual stubs and exclude module prefixed with "_" as they are not to be considered exported stubs
                 continue
             module_name = file.replace(".pyi", "")
             fq_module_name = f"{package_name}.{module_name}" if package_name != "" else module_name
@@ -82,6 +82,10 @@ def walk_typeshed_stdlib(opt: options.Options = get_options()):
             source_list.append(source)
     build_result = build.build(source_list, opt)
     return build_result
+
+
+def is_internal_typeshed_module(filename: str):
+    return filename.startswith("_") and not filename.startswith("__")
 
 
 def serialize_typeshed_stdlib(output_dir_name="output", python_version=(3, 8), is_debug=False):
